@@ -1,0 +1,157 @@
+\chapter{Preliminaries}
+\label{prelim}
+
+\section{Arithmetic circuit}
+\label{arithmetic-circuit}
+\begin{definition}[Arithmetic circuit]
+    $C(\witness, \publicinput): \field^n \rightarrow \field$ is a direct acyclic graph with nodes representing arithmetic operations and edges flow of the variables, where $\witness$ is the witness and $\publicinput$ is public input
+\end{definition}
+
+It is standard that any program could be compiled into a boolean circuit with gates AND, OR. It is commonly known that a boolean circuit can be easily translated into an arithmetic circuit. We can represent 0 as the neural additive element of $\field$ and one as a neutral multiplicative element of $\field$. For variables $a, b$ operation AND becomes $a \cdot b$ and OR is $a+b - a \cdot b$.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|l|l|}
+    \hline
+    $a$ & \multicolumn{1}{c|}{$b$} & $a\cdot c$ & $a+b - a \cdot b$ \\ \hline
+    0   & 0                        & 0           & 0 - 0 = 0                  \\ \hline
+    1   & 0                        & 0           & 1 - 0 = 1               \\ \hline
+    0   & 1                        & 0           & 1 - 0 = 1                \\ \hline
+    1   & 1                        & 1           & 2 - 1 = 1               \\ \hline
+    \end{tabular}
+\end{table}
+
+Circuit size denotes $|C|$, which is the number of gates in the circuit. The following chapters will use $n = |C|$. We will simplify the explanation by considering only binary gates with operations $+, \times$. However, there exist versions of $\plonk$ that can work with custom gates as \cite{HyperPlonk}. Leaves will be considered input nodes, and all other gates will have in-degree 2.
+
+\section{Argument system}
+Prover aims to convince the verifier that $\exists \witness: \CRKT(\witness, \publicinput) = 0$. There are two ways to construct an argument system:
+\begin{itemize}
+    \item Interactive: $\prover$ and $\verifier$ are allowed to exchange messages
+    \item Non-interactive: the $\verifier$ does not send any message to $\prover$ just verifies $\pi$
+\end{itemize}
+
+We will aim toward a non-interactive argument system with procedures:
+\begin{enumerate}
+    \item $\mathsf{Setup}(\secparam) \rightarrow \publicparameter$
+    \item $\mathsf{Prove}(\publicparameter, \witness, \publicinput) \rightarrow \pi$
+    \item $\mathsf{Verify}(\publicparameter, \publicinput, \pi) \rightarrow \mathsf{accept}/\mathsf{reject}$
+\end{enumerate}
+
+The $\mathsf{Setup}$ procedure takes a security parameter $\secparam$, which is determined by the bound on the size of the arithmetic circuit $n$ and produces public parameter $\publicparameter$. The reason we use $\secparam$ instead of $n$ is that we want the protocol to have complexity dependent on the size of the security parameter and the number $n$ size $\log{n}$. $\mathsf{Prove}$ procedure takes the secret key $\sk$, witness $\witness$, and public input $\publicinput$ to produce the argument of knowledge (proof) $\pi$. Finally, the $\mathsf{Verify}$ procedure takes and public key $\pk$, public input $\publicinput$ and proof $\pi$ and decides if $\pi$ is valid. Before going any further, it is important to formalize the properties that the argument system $(\mathsf{Setup},\mathsf{Prove}, \mathsf{Verify})$ should have. 
+
+\subsection{Correctness}
+\begin{definition}[Perfect Completeness]
+    A proof system is complete if: 
+    \begin{equation}
+        \operatorname{Pr}
+            \left[
+            \mathsf{Verify}(\publicparameter, \publicinput, \pi) = \mathsf{accept}
+            \;\middle|\;
+            \begin{array}{c}
+                \publicparameter \gets \mathsf{Setup}(\secparam) \\
+                \pi \gets \mathsf{Prove}(\publicparameter, \witness, \publicinput) \\ 
+            \end{array}
+            \right]
+            = 1
+    \end{equation} 
+\end{definition}
+The correctness says that the verifier $\verifier$ will accept $\pi$ if the prover knows the witness $\witness$. 
+
+\subsection{Soundness}
+\begin{definition}[Computational Soundness]
+    A proof system is computationally sound for negligible $\negl$ if:
+
+    \begin{equation}
+        \operatorname{Pr}
+            \left[
+            \mathsf{Verify}(\publicparameter, \publicinput, \pi) = \mathsf{reject}
+            \;\middle|\;
+            \begin{array}{c}
+                \publicparameter \gets \mathsf{Setup}(\secparam) \\
+                \pi \gets \mathsf{Prove}(\publicparameter, \publicinput) \\ 
+            \end{array}
+            \right]
+            \geq 1 - \negl
+    \end{equation} 
+\end{definition}
+
+While correctness requires that an honest prover can always convince an honest verifier, computation soundness says that a dishonest prover cannot convince an honest verifier. If the prover does not know the witness $\witness$, then there is a negligible probability that the prover can produce a proof $\pi$, which the verifier accepts. The difference between an argument and a proof is that in a proof, the soundness holds against a computationally unbounded prover. In an argument, the soundness only holds against a polynomially bounded prover. 
+
+We will require the protocol to be knowledge-sound, which is a stronger property. Arguments that satisfy knowledge soundness are typically referred to as arguments of knowledge, formalized in the following definition. The following notion will be constructed specifically for this problem where the prover needs to convince the prover of knowledge of a witness $\witness$ for which $\CRKT(\publicinput, \witness) = 0$.
+
+\begin{definition}[Argument of Knowledge]
+    $(\mathsf{Setup}, \mathsf{Prove}, \mathsf{Verify})$ is an argument of knowledge for a circuit $\CRKT$ if for every polynomial time adversary $\adv = (\adv_0, \adv_1)$, with non-negligible probability of success $\delta$ such that:
+    \begin{equation}
+        \operatorname{Pr}
+            \left[
+            \mathsf{Verify}(\publicparameter, \publicinput, \pi) = \mathsf{accept}
+            \;\middle|\;
+            \begin{array}{c}
+                (\pk, \sk) \gets \mathsf{Setup}(\CRKT) \\
+                (\publicinput, \state) \gets \adv_0(\publicparameter) \\
+                \pi \gets \adv_1(\publicparameter, \publicinput, \state) \\ 
+            \end{array}
+            \right]
+            \geq \delta
+    \end{equation} 
+
+    there is an efficient extractor $\extractor$ which uses $\adv_1$ such that:
+    \begin{equation}
+        \operatorname{Pr}
+            \left[
+            \CRKT(\publicinput, \witness) = 0
+            \;\middle|\;
+            \begin{array}{c}
+                \publicparameter \gets \mathsf{Setup}(\CRKT) \\
+                (\publicinput, \state) \gets \adv_0(\publicparameter) \\
+                \witness \gets \extractor^{\adv_1(\publicparameter, \publicinput, \state)}(\sk, \publicinput) \\ 
+            \end{array}
+            \right]
+            \geq \delta - \negl
+    \end{equation} 
+\end{definition}
+
+The adversary $\adv$ is split into two parts where $\adv_0$ chooses the instance of the problem $\publicinput$ and $\adv_1$ that forges the proof $\pi$. The definition says that if an $\adv$ exists that can forge the proof $\pi$, then there must be an algorithm $\extractor$ which uses $\adv$ as a black box to extract a valid witness $\witness$. 
+
+This means that the prover knows $\witness$ if it can be "extracted" from the prover. So, the argument system of a proof of knowledge of $\witness$ because $\witness$ can be extracted from the prover. In the following sections, we will provide just proof of soundness. The knowledge soundness of $\plonk$ could be achieved by proving the intractability of the polynomial commitment scheme from section \Cref{chap:kzg}.
+
+\subsection{Zero-Knowledge}
+\begin{definition}[Computational indistinguishability]
+\label{hvzk}
+    Two finite sequences of probability distributions $\{X_n\}_{n \in \mathbb{N}}, \{Y_n\}_{n \in \mathbb{N}}$ and computationally indistinguishable if for every probabilistic poly-time distinguisher $\distinguisher$ exists a negligible function $\negl(x)$ such that:
+    $$\abs{\probsub{x \gets X_n}{\distinguisher(1^n, x) = 1} - \probsub{y \gets Y_n}{\distinguisher(1^n, y) = 1}} \leq \negl$$
+\end{definition}
+
+We will use this to construct the definition of honest verifier zero-knowledge specific to the problem on the arithmetic circuit. 
+
+\begin{definition}[Honest Verifier Zero-Knowledge]
+    $(\mathsf{Setup}, \mathsf{Prove}, \mathsf{Verify})$ is honest verifier zero-knowledge (HVZK) for circuit $\CRKT$ if there is an efficient simulator $\simulator$ such that $\forall \publicinput \in \field$ for which $\exists \witness: \CRKT(\publicinput, \witness)$ the distribution:
+    $$(\publicparameter, \publicinput, \pi): \publicparameter \gets \mathsf{Setup}(\secparam), \pi \gets \mathsf{Prove}(\sk, \publicinput, \witness)$$
+    is computationally indistinguishable 
+    $$(\publicparameter, \publicinput, \pi): \pi \gets \simulator(\publicparameter, \publicinput)$$
+\end{definition}
+
+This definition is somewhat unintuitive. Essentially, it says that $\pi$ "does not reveal" anything about $\witness$ besides its existence. This is formalized by the existence of an efficient simulator that the verifier can use in order to generate $\pi$ by itself. And if it is possible to generate $\pi$ without the knowledge of $\pi$, it must mean that $\pi$ does not provide any information about $\witness$. There are Multiple variations on the zero-knowledge property are explained in detail in \cite{ProofArgsAndZk}.
+
+It might seem that the definition of the argument of knowledge and zero-knowledge are the opposite of each other. While the first one claims that for each prover, there needs to exist an extractor $\extractor$ that can extract the $\witness$, the second definition claims the existence of a simulator $\simulator$ which can generate valid transcripts with proofs. Is it possible to use the extractor on the simulator in order to extract a witness $\witness$? The key is that the extractor needs to have access to a verifier and query it in order to extract the witness. It might happen that the protocol would not remain zero-knowledge after multiple queries to the prover, as will be shown in \Cref{sec:blinding}. In that particular case, the extractor might query the prover and eventually obtain the witness $\witness$, but the multiple queries would break the zero-knowledge property, so it is not possible to use the extractor.  
+
+\section{Succinctness}
+
+The notion of succinctness captures that the proof should be \textit{"relatively small and easy to verify"}. This is formalized as:
+\begin{itemize}
+    \item The size of the proof (argument) $|\pi|$ is logarithmic in circuit size $\bigO{\log{n}}$
+    \item The $\mathsf{Verify}$ procedure is poly-logarithmic in circuit size $\bigO{\log{n}^k}$
+\end{itemize}
+
+% \item The preprocessing in $\mathsf(Setup)$ is quasilinear in circuit size.
+% where quasilinear (log-linear) time is: $O(n \log{n}^k)$ for positive constant $k$ and polylogarithmic time is $O(\log{n}^k)$ for constant $k$
+
+\section{Interactive and Non-interactive protocols}
+Many protocols are described in interactive settings where the verifier challenges the prover. This is somewhat impractical for real-world use cases. In non-interactive protocol, the only message is the proof $\pi$ sent by the prover. This means no interaction is required from the verifier. Under some assumptions, it is possible to transform interactive protocol into non-interactive using the Fiat-Sharmir transform \cite{fiat-shamir}. This transformation needs to be handled with special care. Multiple vulnerabilities were discovered due to improper application of the heuristic \cite{weak-FS}. 
+
+\section{zk-SNARK}
+$\plonk$, a member of the SNARK \textit{(Succinct Non-Interactive Argument of Knowledge)} family of cryptographic protocols, offers several advantages. The $\plonk$ protocol can be transformed into a zero-knowledge SNARK (zk-SNARK) with minimal additional overhead, as explained in \cref{sec:blinding}.
+
+These protocols are particularly well-suited for scenarios where the verifier is computationally weak. Thanks to the succinctness property, the proofs are small and easily verifiable. The non-interactivity makes the protocol well-suited for practical application since no party has to wait for responses or queries. Non-interactivity is especially beneficial in multi-party settings where the same proof can be sent to multiple verifiers without requiring individual interactions with each one. For a further, more detailed explanation of SNARKS, the reader should refer to \textit{Why and How zk-SNARK Works} \cite{how-snark-works}.
+
+In the following \cref{chap:2}, we will describe the tools needed to construct the $\plonk$ protocol. Many of these techniques are commonly used also in other SNARKs. The \cref{chap:3} gives a detailed explanation of the plonk protocol. 

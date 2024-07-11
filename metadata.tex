@@ -1,0 +1,87 @@
+%%% Please fill in basic information on your thesis, which will be automatically
+%%% inserted at the right places.
+
+% Type of your thesis:
+%	"bc" for Bachelor's
+%	"mgr" for Master's
+%	"phd" for PhD
+%	"rig" for rigorosum
+\def\ThesisType{bc}
+
+% Language of your study programme:
+%	"cs" for Czech
+%	"en" for English
+\def\StudyLanguage{cs}
+
+% Thesis title in English (exactly as in the official assignment)
+% (Note: \xxx is a "ToDo label" which makes the unfilled visible. Remove it.)
+\def\ThesisTitle{On PlonK SNARK}
+
+% Author of the thesis (you)
+\def\ThesisAuthor{Benjamín Benčík}
+
+% Year when the thesis is submitted
+\def\YearSubmitted{2024}
+
+% Name of the department or institute, where the work was officially assigned
+% (according to the Organizational Structure of MFF UK in English,
+% see https://www.mff.cuni.cz/en/faculty/organizational-structure,
+% or a full name of a department outside MFF)
+\def\Department{Computer Science Institute of Charles University}
+
+% Is it a department (katedra), or an institute (ústav)?
+\def\DeptType{Institute}
+
+% Thesis supervisor: name, surname and titles
+\def\Supervisor{Mgr. Pavel Hubáček, Ph.D.}
+
+% Supervisor's department (again according to Organizational structure of MFF)
+\def\SupervisorsDepartment{Computer Science Institute of Charles University}
+
+% Study programme (does not apply to rigorosum theses)
+\def\StudyProgramme{Artificial Intelligence}
+
+% An optional dedication: you can thank whomever you wish (your supervisor,
+% consultant, who provided you with tea and pizza, etc.)
+\def\Dedication{%
+I would like to thank my advisor Dedicated to my advisor for great support and also to Tomáš Krňák for his valuable suggestions on optimization.
+}
+
+% Abstract (recommended length around 80-200 words; this is not a copy of your thesis assignment!)
+\def\Abstract{%
+This thesis presents a comprehensive analysis of the Plonk zk-SNARKs protocol. It delves into the core cryptographic primitives underlying Plonk and provides a detailed, round-by-round explanation of the protocol's execution. This in-depth exploration complements existing research focused on formal security analysis by offering a clear and accessible overview. Additionally, the thesis explores optimization strategies, focusing on reducing the degree of wire polynomials. While acknowledging the limitations compared to software optimization techniques, this work contributes insights into enhancing Plonk's performance.
+}
+
+% 3 to 5 keywords (recommended) separated by \sep
+% Keywords are useful for indexing and searching for the theses by topic.
+\def\ThesisKeywords{Cryptography\sep SNARK \sep Zero-Knowledge \sep Commitment Scheme}
+
+% If any of your metadata strings contains TeX macros, you need to provide
+% a plain-text version for use in XMP metadata embedded in the output PDF file.
+% If you are not sure, check the generated thesis.xmpdata file.
+\def\ThesisAuthorXMP{\ThesisAuthor}
+\def\ThesisTitleXMP{\ThesisTitle}
+\def\ThesisKeywordsXMP{\ThesisKeywords}
+\def\AbstractXMP{\Abstract}
+
+% If your abstracts are long and do not fit in the infopage, you can make the
+% fonts a bit smaller by this setting. (Also, you should try to compress your abstract more.)
+\def\InfoPageFont{}
+%\def\InfoPageFont{\small}  % uncomment to decrease font size
+
+% If you are studing in a Czech programme, you also need to provide metadata in Czech:
+% (in English programmes, this is not used anywhere)
+
+\def\ThesisTitleCS{O PlonK SNARKu}
+\def\DepartmentCS{Informatický ústav Univerzity Karlovy}
+\def\DeptTypeCS{Ústav}
+\def\SupervisorsDepartmentCS{Informatický ústav Univerzity Karlovy}
+\def\StudyProgrammeCS{Umelá inteligencia}
+
+\def\ThesisKeywordsCS{%
+\xxx{Kryptografia \sep SNARK \sep Zero-Knowledge \sep Commitment Scheme}
+}
+
+\def\AbstractCS{%
+Táto práca ponúka analýzu zk-SNARKs Plonk protokolu. Zaoberá sa základmi, na ktorých Plonk stojí, a poskytuje detailné, vysvetlenie procedúr protokolu. Práca dopĺňa existujúci výskum zameraný na formálnu bezpečnostnú analýzu tým, že ponúka jasný a zrozumiteľný prehľad protokolu. Okrem toho sa práca rozoberá možné optimalizácie protokolu, s dôrazom na zníženie stupňa polynómov.
+}

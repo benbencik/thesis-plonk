@@ -1,0 +1,32 @@
+\chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
+
+\section*{Zero-Knowledge proofs}
+In a zero-knowledge protocol, there are two parties: one prover $\prover$ and at least one verifier $\verifier$. The protocol aims to convince the verifier that the prover has some secret information. The prover provides an \textit{argument of knowledge}. Probabilistic proof should be formally called an argument, but the terms are sometimes used interchangeably.
+
+The prover is an entity that possesses a particular witness $\witness$ and aims to convince the verifier about the knowledge of $\witness$ without revealing it. For example, say that the prover wants to convince the verifier that a graph is $k$-colorable. The prover knows how to color the graph validly and wants to convince the verifier about knowledge of valid $k$-coloring by providing an argument of knowledge $\pi$. The verifier is responsible for checking the validity of $\pi$. It is essential to mention that verification of the proof is a deterministic algorithm that runs strictly in polynomial time and is orders of magnitude faster than generation of the proof. The zero-knowledge property vaguely says the verifier "learns nothing" about $\witness$ from $\pi$. 
+
+\begin{example}
+    Consider an ordinary deck with 32 red and 32 black cards to provide another simple example. The prover picks some card. Assume it is red 8. The prover wants to convince the verifier that he picked a red card without showing the card number. The prover can achieve this by listing all of the 32 black cars. Since the card he picked is not among the black cards, it must mean his card is red. At the same time, the verifier does not get any information about the number of the card the prover picked. This only works if the proof is honest and not cheating by replacing cards in the standard deck. 
+\end{example}
+
+For the $\plonk$ protocol, we will use the properties of a polynomial to guarantee that cheating is not possible except for a negligible soundness error. At this point, it might not be clear why we should consider constructing such proof. Motivation for creating these types of protocols stems from different fields:
+
+\begin{enumerate}
+    \item \textbf{Proving a statement on private data}
+    \begin{itemize}
+        \item Proving your financial standing is often a requirement for loans, credit applications, or other financial services. However, revealing your exact account balance might be undesirable. Using zero-knowledge proof, you can demonstrate to a financial institution that your account balance meets a specific threshold without disclosing the exact amount.
+        \item When conducting a medical study, you might want to prove the validity of your findings without revealing any information about the individual patients involved. Using zero-knowledge proof, you can demonstrate the correctness of your statistical analysis of the data while ensuring that patient information remains completely confidential.
+    \end{itemize}
+    \item \textbf{Anonymous authorization}
+    \begin{itemize}
+        \item You want to prove to some website that you have some privileges without revealing a key or password. You can demonstrate to the website that you possess the necessary information using zero-knowledge proof.
+    \end{itemize}
+    \item \textbf{Outsourcing a computation} 
+    \begin{itemize}
+        \item Imagine you need to solve a complex computational problem but lack the resources. You outsource the task to a third-party service. This service provides a solution but requires payment before revealing it. The service can utilize a zero-knowledge proof, demonstrating they've computed the correct solution without revealing any details of their computation process. This allows you to pay for a verified solution confidently.
+        \item Suppose a company offers access to multiple versions of their AI model, each with varying capabilities and costs. You subscribe to a specific, high-performance model. The company can leverage zero-knowledge proofs to ensure you're receiving the service you pay for. 
+    \end{itemize}
+\end{enumerate}
+
+Assuming there is enough motivation for this type of protocol, let's formalize the concepts we introduced. In the \Cref{prelim}, we will give a general introduction to SNARKs and later in \Cref{chap:2} describe the main building concepts used in the $\plonk$ SNARK.
